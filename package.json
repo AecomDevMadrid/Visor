@@ -1,0 +1,18 @@
+{
+  "name": "forgesample",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon start.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-session": "^2.0.0-beta.3",
+    "express": "^4.16.3",
+    "forge-apis": "^0.4.3",
+    "nodemon": "^2.0.13",
+    "xlsx": "^0.17.2"
+  }
+}

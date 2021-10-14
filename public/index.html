@@ -1,0 +1,137 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <title>VISOR ACTIVOS AECOM</title>
+  <meta charset="utf-8" />
+  <link rel="shortcut icon" href="https://github.com/Autodesk-Forge/learn.forge.viewhubmodels/raw/master/img/favicon.ico">
+  <!-- Common packages: jQuery, Bootstrap, jsTree -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/jstree.min.js"></script>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.2/xlsx.min.js" integrity="sha512-pLEkU4p3gVoqbP9CLV+TAddgzdu8sycuJqMeDnCIN5JjnHcogOnLQAU9g1KoGinAI0Ru5Xfzx79X9wqnMaTHBw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>-->
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+
+
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.7/themes/default/style.min.css" />
+  <!-- Autodesk Forge Viewer files -->
+  <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css" type="text/css">
+  <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+  <!-- this project files -->
+  <link href="css/main.css" rel="stylesheet" />
+  <script src="js/ForgeTree.js"></script>
+  <script src="js/ForgeViewer.js"></script>
+  <script src="js/models.js"></script>
+  <!--extension-->
+  
+  <!--<script src="js/my-awesome-extension.js"></script>
+  <script src="js/my-awesome-extension-class.js"></script>-->
+  
+  <script src="js/DrawBoundsToolExtension.js"></script>
+  <script src="js/SelectionChanged.js"></script>
+  <script src="js/Extensiones.js"></script>
+  <!--<script src="js/ExcelTest.js"></script>-->
+  <script src="js/LeeExcel.js"></script>
+
+
+</head>
+
+<body>
+  <!-- Fixed navbar by Bootstrap: https://getbootstrap.com/examples/navbar-fixed-top/ -->
+  <nav  class="navbar navbar-default navbar-fixed-top text-center">
+    <div class="container-fluid">
+
+      <ul id="topBar" class="nav navbar-nav left">
+
+        <li>
+          <a href="https://aecom.com/" target="_blank">
+            <img alt="AECOM" src="/img/AECOM.jpg" height="20">
+          </a>
+        </li>
+        <li>
+         
+          <p id="menu" onClick="openClose()" >Show/Hide Tree</p>
+          
+        </li>
+        <li>
+         
+          <p id="target" ondrop="handleFileLoad(event);" ondragover="dragover_handler(event);" accept=".xlsx">Arrastre aqui los registros</p>
+
+        </li>
+
+      </ul>
+    </div>
+  </nav>
+  <!-- End of navbar -->
+  <div class="container-fluid fill">
+    <div class="row fill">
+      <div id="sidebar" class="col-sm-4 fill">
+        <div class="panel panel-default fill">
+          <div class="panel-heading" data-toggle="tooltip" style="padding: 0px;">
+            <span id="userInfo"></span>
+            <span id="refreshHubs" class="glyphicon glyphicon-refresh" style="cursor: pointer; display: none" title="Refresh list of files"></span>
+            <span id="signOut" class="glyphicon glyphicon-log-out" style="margin-top:5px;cursor: pointer; float: right; display: none" title="Sign out"> </span>
+          </div>
+          <div id="userHubs" style="height: 40%">
+            <div style="padding-top: 100px; text-align: center;">
+              <button class="btn btn-lg btn-default" id="autodeskSigninButton">
+                <img src="https://github.com/Autodesk-Forge/bim360appstore-data.management-nodejs-transfer.storage/raw/master/www/img/autodesk_text.png"
+                  height="20"> Sign in
+              </button>
+              <br/>
+              <br/>
+              <br/> You may also need to provision your<br/> BIM 360 Docs account for this app.<br/>
+              <a href="https://forge.autodesk.com/blog/bim-360-docs-provisioning-forge-apps">Learn more</a>.
+            </div>
+          </div>
+          <div id="activos" style="height: 20%">
+            <div style="padding-top: 100px; text-align: center;">
+
+            </div>
+          </div>
+          <div id="footer" class="panel-footer" style="height: 40%" >
+            <button type="button" class="btn btn-primary btn-sm" onclick="Federar();openClose();">Federar seleccion</button>
+            <button id="limpiar" type="button" class="btn btn-primary btn-sm" onclick="Eliminar();">Eliminar modelos</button>
+            <ul id="modelosFederar"class="list-group">
+
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div id="visor" class="col-sm-8 fill">
+        <div id="forgeViewer"></div>
+        <div id="forgeViewer2"></div>
+
+
+      </div>
+
+      </div>
+
+    </div>
+  </div>
+  <script>
+function openClose(){
+  if(document.getElementById("sidebar").className=="hide"){
+openNav();
+  }else{
+    closeNav();
+  }
+} 
+function openNav() {
+  document.getElementById("sidebar").className = "col-sm-4 fill";
+  document.getElementById("visor").className = "col-sm-8 fill";
+}
+
+/* Set the width of the sidebar to 0 and the left margin of the page content to 0 */
+function closeNav() {
+  document.getElementById("sidebar").className = "hide";
+  document.getElementById("visor").className= "col-sm-12 fill";
+  
+}
+
+  </script>
+</body>
+<iframe id="hiddenFrame" style="visibility: hidden; display: none" />
+</html>
