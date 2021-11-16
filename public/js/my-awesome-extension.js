@@ -1,3 +1,4 @@
+//Solo pruebas de como se genera una extension mediante funciones
 console.log('step1');
 let contador=0;
 function MyAwesomeExtension(viewer, options) {

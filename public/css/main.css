@@ -61,3 +61,35 @@ body {
 #Coordenadas{
   width: 200px; 
 }
+#modelosFederar{
+  font-size: 10px;
+}
+#modelosFederar,
+.btn{
+  font-size: 10px;
+  margin-inline-end: 10px;
+  padding: 3px 6px;
+}
+ul#modelosFederar{
+  width:100%;
+  margin:5px 0 5px 0;
+  overflow-y:auto;
+  text-align:justify; /*Added this*/
+}
+
+ul#modelosFederar li{
+  letter-spacing:.05em;
+  /*Now inline blocks instead of blocks floated left*/
+  display:inline-block; 
+  font:10px arial;
+  padding:7px 26px;
+  background:#fff;
+  border-left:2px solid #0a93cd;
+  border:2px solid #0a93cd;
+  border-radius:8px;
+  text-align:center;
+  width: 100%;
+}
+.ArchivosFederar{
+  height: 10%;
+}

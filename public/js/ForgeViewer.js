@@ -16,11 +16,12 @@
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
 
-var viewer;
-
+let viewer;
+const view = new Autodesk.Viewing.AggregatedView();
 // @urn the model to show
 // @viewablesId which viewables to show, applies to BIM 360 Plans folder
 const models = [];
+
 //function launchViewer(urn, viewableId) {
   function launchViewer(model) {
   //chequear si ya esta cargado en el array y no permitir cosas que no sean modelos...
@@ -62,20 +63,31 @@ const models = [];
     const viewerDiv = document.getElementById( 'forgeViewer' );
 
     //initialize the viewer object
-    const view = new Autodesk.Viewing.AggregatedView();
-    view.init( viewerDiv, options3d );
     
-    const viewer = view.viewer;
-
+    view.init( viewerDiv, options3d );
+    //console.log(view)
+    viewer = view.viewer;
+ 
     const tasks = [];
 
     model.forEach( md => tasks.push( loadManifest( md.urn ) ) );
-//viewer.loadExtension('MyAwesomeExtension');
-   //viewer.loadExtension('MyAwesomeExtension2');
-   viewer.loadExtension('visorExtensiones');
-   viewer.loadExtension('DrawBoundsToolExtension');
+    //CARGA DE EXTENSIONES DEFINIDAS MEDIANTE CLASES
+  //viewer.loadExtension('XXXXXX');
+  viewer.loadExtension('DrawBoundsToolExtension');//consulta de coordenadas
+  viewer.loadExtension('selToActivosExtension').then(
+    function(ext){
+      //hasta que no se ha cargado la otra extension no puedo cargar esta pq necesito elgroupcontrol creado
+      viewer.loadExtension('FuncionesExtension')//Funciones RIH
+    },function(err){
+      console.log(err)
+    });
+  
+  
+    
+   //  viewer.loadExtension('FuncionesExtension')//Funciones RIH
+  //extension que captura los cambios en la seleccion de elementos
    
-   
+ 
     Promise.all(tasks)
             .then( docs =>  Promise.resolve( docs.map( doc => {
               const bubbles = doc.getRoot().search({type:'geometry', role: '3d'});
@@ -86,22 +98,15 @@ const models = [];
             })))
             .then( bubbles => view.setNodes( bubbles ) );
             
-
+            
+     viewer.fitToView()      
   }); 
 
-  function loadManifest( documentId ) {
-    return new Promise(( resolve, reject ) => {
-      const onDocumentLoadSuccess = ( doc ) => {
-        doc.downloadAecModelData(() => resolve(doc));
-        console.log("modelo cargado");
 
-      };
-      Autodesk.Viewing.Document.load( documentId, onDocumentLoadSuccess, onDocumentLoadFailure );
-    });
-  } 
   //sin uso
   function onDocumentLoadSuccess(doc) {
     // if a viewableId was specified, load that view, otherwise the default view
+    console.log("doc load")
     doc.downloadAecModelData(() => resolve(doc));
 /*     var viewables = (viewableId ? doc.getRoot().findByGuid(viewableId) : doc.getRoot().getDefaultGeometry());
     viewer.loadDocumentNode(doc, viewables).then(i => {
@@ -115,6 +120,31 @@ const models = [];
   }
   
 }
+//************************** */
+function loadManifest( documentId ) {
+  return new Promise(( resolve, reject ) => {
+    const onDocumentLoadSuccess = ( doc ) => {
+      doc.downloadAecModelData(() => resolve(doc));
+      console.log("modelo cargado");
+
+    };
+    Autodesk.Viewing.Document.load( documentId, onDocumentLoadSuccess, onDocumentLoadFailure );
+  });
+}
+function onDocumentLoadSuccess(doc) {
+  // if a viewableId was specified, load that view, otherwise the default view
+  doc.downloadAecModelData(() => resolve(doc));
+/*     var viewables = (viewableId ? doc.getRoot().findByGuid(viewableId) : doc.getRoot().getDefaultGeometry());
+  viewer.loadDocumentNode(doc, viewables).then(i => {
+    // any additional action here?
+  
+  }); */
+}
+
+function onDocumentLoadFailure(viewerErrorCode) {
+  console.error('onDocumentLoadFailure() - errorCode:' + viewerErrorCode);
+} 
+
 //************************** */
 function getForgeToken(callback) {
   fetch('/api/forge/oauth/token').then(res => {
@@ -132,3 +162,51 @@ function getForgeToken(callback) {
     Autodesk.Viewing.Document.load( documentId, onDocumentLoadSuccess, reject );
   });
 } */
+/* function userFunction(pdb){
+  var attrIdAct = -1;
+  var dbids=[];
+  
+  // Iterate over all attributes and find the index to the one we are interested in
+  pdb.enumAttributes(function(i, attrDef, attrRaw){
+
+      var name = attrDef.displayName;
+      
+      if (name === 'ADIF_01_Id_Activo') {
+          attrIdAct = i;
+         // console.log("encontrado")
+          return true; // to stop iterating over the remaining attributes.
+      }
+  });
+  if (attrIdAct === -1)
+      return null;
+
+    // Now iterate over all parts to find out which one is the most massive.
+
+    pdb.enumObjects(function(dbId){
+
+        // For each part, iterate over their properties.
+        pdb.enumObjectProperties(dbId, function(attrId, valId){
+
+            // Only process 'Mass' property.
+            // The word "Property" and "Attribute" are used interchangeably.
+            if (attrId === attrIdAct) {
+
+                var value = pdb.getAttrValue(attrId, valId);
+               if (value===""){
+                dbids.push(dbId);
+                console.log(value)
+               } 
+                
+
+                // Stop iterating over additional properties when "Mass" is found.
+                return true;
+            }
+        });
+    });
+
+    // Return results
+    return dbids;
+    
+} */
+///S
+

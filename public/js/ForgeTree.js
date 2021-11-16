@@ -22,6 +22,7 @@ $(document).ready(function () {
     url: '/api/forge/oauth/token',
     success: function (res) {
       // yes, it is signed in...
+     
       $('#signOut').show();
       $('#refreshHubs').show();
 
@@ -41,8 +42,9 @@ $(document).ready(function () {
       });
 
       // finally:
-      prepareUserHubsTree();
-      showUser();
+     
+      CheckUser();
+    
     }
   });
 
@@ -58,7 +60,9 @@ $(document).ready(function () {
 });
 
 function prepareUserHubsTree() {
-  $('#userHubs').jstree({
+  $('#userHubs')
+
+  .jstree({
     'core': {
       'themes': { "icons": true },
       'multiple': false,
@@ -98,9 +102,11 @@ function prepareUserHubsTree() {
       else if (a1.type !== b1.type) return a1.icon < b1.icon ? 1 : -1; // types are different inside folder, so sort by icon (files/folders)
       else return a1.text > b1.text ? 1 : -1; // basic name/text sort
     },
-    "plugins": ["types", "state", "sort"],
+    "plugins": ["types", "state", "sort","Wholerow"],
     "state": { "key": "autodeskHubs" }// key restore tree state
-  }).bind("activate_node.jstree", function (evt, data) {
+  })
+  .bind("activate_node.jstree", function (evt, data) {
+
     if (data != null && data.node != null && (data.node.type == 'versions' || data.node.type == 'bim360documents')) {
       // in case the node.id contains a | then split into URN & viewableId
       if (data.node.id.indexOf('|') > -1) {
@@ -110,30 +116,124 @@ function prepareUserHubsTree() {
         launchViewer(urn, viewableId);
       }
       else {
-        console.log("click_2");
+        console.log("Añadido un modelo a federar");
         //Carga el modelo
-        //console.log(data.node.parent);
+        //en data.node.original esta todo la info que he guardao en el nodo
+        console.log(data.node.original);
         let nm=document.getElementById(data.node.parent);
-        let nombreModelo=(nm.childNodes[1].childNodes[1].data);
-        //console.log (nombreModelo);
+        
+        let nombreModelo=(nm.childNodes[1].childNodes[1].data).trim();
+        //en tipo he incluido la extension del archivo para poder gestionar si se carga o no y donde
+       // console.log(data.node.original.tipo);
         let listaModelos=document.getElementById("modelosFederar");
-let linea = document.createElement("li");
-linea.appendChild(document.createTextNode(nombreModelo));
-linea.classList.add("list-group-item");
-listaModelos.appendChild(linea);
-        getModels(data.node.id);
+        
+        let linea = document.createElement("li");
+        
+        linea.classList.add("list-group-item");
+        linea.id=nombreModelo;//id de la linea=nombre del modelo para facilitar su localizacion despues
+        //<span class="badge badge-primary badge-pill">14</span>
+        let boton=document.createElement("button");
+        boton.className=("btn btn-default");
+        
+        //boton.appendChild(document.createTextNode("BORRAR"));
+        let icono=document.createElement("span");
+        //icono.appendChild(document.createTextNode("1"));
+        icono.className=("glyphicon glyphicon-trash");
+        //icono.ariaHidden="true";
+        
+        boton.appendChild(icono);
+        linea.appendChild(boton);
+        linea.appendChild(document.createTextNode(nombreModelo));
+        //No consigo añadir el evento al boton, como esta creado dimanicamente, pasa algo, y hay un tema de padres e hijos, ademas se mete por medio el icono tambien...
+        //el boton y el icono no tienen id, entonces busco el padre del target y saco su id, que es el nombre del modelo además,
+        linea.addEventListener("click",function(e){
+          console.log(e)
+          console.log(e.target.id)
+          if(e.target.id===""){
+            EliminarSeleccionado(e.target.offsetParent.id)
+          }
+        })
+        if (isModel(data.node.original.tipo,data.node.original.versionID)){
+        //boton.addEventListener("click",function(){EliminarSeleccionado(linea.innerText)}, false)
+        listaModelos.appendChild(linea);//los modelos a federar
+        console.log("No es un xlsx, se evalua como modelo...")
+        //console.log(data.node);
+        getModels(data.node.id,linea.innerText);
+        }else{
+          console.log("Era un XLSX!!!")
+        }
+        
+        //no deberia poder añadirse si no es un modelo....
+        //isModel(data.node.original.tipo)
         //launchViewer(data.node.id);
       }
     }
-  });
+  })
+  .bind("move_node.jstree", function(e, data) {
+    console.log("Drop node ");
+        });
+
+
+
 }
 
+
 function showUser() {
+  
   jQuery.ajax({
     url: '/api/forge/user/profile',
     success: function (profile) {
       var img = '<img src="' + profile.picture + '" height="30px">';
       $('#userInfo').html(img + profile.name);
+      
     }
   });
 }
+//muy burdo, si el usuario no esta en la lista le hago un sing out...
+function CheckUser() {
+  console.log("checkUser");
+  jQuery.ajax({
+    url: '/api/forge/user/profileCheck',
+    success: function (profile) {
+  console.log("comprobacion usuario");
+  if (profile.autorizado){
+   //el correo del usuario esta en la lista de autorizados
+    prepareUserHubsTree();
+    showUser();
+    
+  }else{
+    console.log("CheckUser NO autorizado");
+    //El correo no esta en la lista de usuarios autorizados
+    location.href = '/api/forge/oauth/signout'; 
+  }  
+    }
+  });
+}
+
+function isModel(nd,id){
+          console.log(nd);
+          console.log(id);
+          let project_id='b.99a67f48-dc5a-4524-bf43-4ea4a696ba69'
+          if(nd==="xlsx"){
+           //ESTO NO FUNCIONA!!!!
+            console.log("es un excel");
+            //llamo a una ruta del servidor y desde alli consulto la base de datos
+            jQuery.ajax({
+              url: '/api/forge/getExcel',
+              data: { 
+                project_id:project_id,
+                version_id: id
+                },
+              success: function (res) {
+                //la respuesta es el workbook
+                //console.log(res);
+                procesaExcel(res)
+              }
+            });
+            
+            return false
+          }else{
+            return true
+          }
+}
+

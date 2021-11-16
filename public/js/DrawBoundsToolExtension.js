@@ -1,3 +1,4 @@
+//extension para consultar las coordenadas reales de los elementos, los nombres estan heredados de otra extension...
 class DrawBoundsToolExtension extends Autodesk.Viewing.Extension {
     constructor(viewer, options) {
         super(viewer, options);
@@ -21,7 +22,7 @@ class DrawBoundsToolExtension extends Autodesk.Viewing.Extension {
     onToolbarCreated(toolbar) {
         const controller = this.viewer.toolController;
         this.button = new Autodesk.Viewing.UI.Button('draw-bounds-tool-button');
-        this.button.setIcon('adsk-icon-measure-calibration');
+        this.button.icon.classList.add('glyphicon','glyphicon-screenshot');
         let panel=this.panel;
         this.button.onClick = (ev) => {
             if (controller.isToolActivated(DrawBoundsToolName)) {
@@ -90,7 +91,9 @@ class DrawBoundsTool extends Autodesk.Viewing.ToolInterface {
         if (!this.active) {
             this.viewer.overlays.addScene(DrawBoundsOverlayName);
             console.log('DrawBoundsTool activated.');
+            
             this.active = true;
+            this.viewer.canvas.style.cursor = "crosshair"
         }
     }
  
@@ -99,6 +102,7 @@ class DrawBoundsTool extends Autodesk.Viewing.ToolInterface {
             this.viewer.overlays.removeScene(DrawBoundsOverlayName);
             console.log('DrawBoundsTool deactivated.');
             this.active = false;
+            this.viewer.canvas.style.cursor = "pointer"
         }
     }
  
@@ -200,8 +204,15 @@ class DrawBoundsTool extends Autodesk.Viewing.ToolInterface {
         punto[1]=yWCS;
         punto[2]=zWCS;
         console.log(punto);
-        let tabla=document.getElementById("contentArea");
-        
+        //let tabla=$('#Coordenadas #contentArea');
+       
+        //let pane=$('#Coordenadas')
+        //console.log(pane[0])
+       // let tab=pane.getElementById('contentArea');
+        let tabla=$('#Coordenadas #contentArea')[0]
+       // console.log (tabla)
+       // console.log(tab)
+       // let tabla=document.getElementById('contentArea');
         tabla.rows[0].cells[1].innerHTML=xWCS;
         tabla.rows[1].cells[1].innerHTML=yWCS;
         tabla.rows[2].cells[1].innerHTML=zWCS;
