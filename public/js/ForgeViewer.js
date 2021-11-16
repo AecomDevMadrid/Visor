@@ -15,7 +15,7 @@
 // DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
-
+//INICIALIZACION DEL VISOR Y CARGA DE MODELOS
 let viewer;
 const view = new Autodesk.Viewing.AggregatedView();
 // @urn the model to show

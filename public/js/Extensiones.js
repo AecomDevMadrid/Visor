@@ -1,4 +1,5 @@
 console.log('Ver todas las extensiones de serie');
+//Para activar las extendiones que vienen de fabrica, ahora mismo sin uso (no cargada)
 class visorExtensiones extends Autodesk.Viewing.Extension {
   constructor(viewer,options){
     super(viewer,options);

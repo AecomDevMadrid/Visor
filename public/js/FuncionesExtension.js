@@ -1,4 +1,4 @@
-//extension para 
+//extension para leer el parametro que tiene la clasificacion del RIH, ponerla en un arbol y podel buscar elementos por ese codigo (hay mucho codigo reutilizado)
 class FuncionesExtension extends Autodesk.Viewing.Extension {
     constructor(viewer, options) {
         super(viewer, options);
@@ -189,7 +189,7 @@ console.log(resp1)
 
 
  
-
+//deja solo los objetos que son unicos, elimina duplicados
 async function uniqueFUN(fun){
     
 //console.log(fun.length)
@@ -208,6 +208,7 @@ UniqueObjectsArray.push(object)
 })
 arbolFUN=[]
 arbolFUN.push(new activo("ACT","#","FUNCIONES","Encabezado","Propiedades"))
+//creacion del array del arbol
 UniqueObjectsArray.forEach(function(funcion){
     let idPadre=obtenerIdPadre(funcion.id)
     console.log(funcion.id)
@@ -215,10 +216,11 @@ UniqueObjectsArray.forEach(function(funcion){
     let miFUN=new activo(funcion.id,idPadre,funcion.descripcion,"encabezado","propiedades")
     arbolFUN.push(miFUN)
     console.log(miFUN)
+    //ACT bien de reutilizar el codigo de activos...podria cambiarse, pero hay que tocar activos...
     if(idPadre=="ACT"){
 console.log("es ACT")
     }else{
-        do {
+        do {//crea el arbol entero, pero lo que no existe en el modelo le añade la descripcion de No modelado
             console.log("NO es ACT")
             let miFUN=new activo(idPadre,obtenerIdPadre(idPadre),"(No modelado)","encabezado","propiedades")
             console.log(miFUN)
@@ -231,6 +233,7 @@ console.log("es ACT")
 })
 let arbolLimpio=new Set()
 const arbolFUNUnico=[];
+//elimina duplicados
 arbolFUN.forEach(function (object){
     //console.log(object)
     const objectJSON=JSON.stringify(object)
@@ -248,7 +251,7 @@ function updateFunciones(){
     //solo actualiza lo que se muestra en el panel, no se si puedo obtener todos los datos antes de que se muestre el panel, asi que lo actualizo.¿?
 }
 let arbolFUN=[]
-
+//crea el arbol, esta funcion si se parametrizase valdria para los 3 arboles que hay en la plicación...paquete...
 function createJSTreeFUN(jsondata) { 
     //console.log(jsondata); 
     //no actualizo el arbol, lo destruyo y lo recreo entero

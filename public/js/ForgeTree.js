@@ -15,7 +15,7 @@
 // DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
-
+//ARBOL de ARCHIVOS
 $(document).ready(function () {
   // first, check if current visitor is signed in
   jQuery.ajax({
@@ -118,8 +118,10 @@ function prepareUserHubsTree() {
       else {
         console.log("Añadido un modelo a federar");
         //Carga el modelo
-        //en data.node.original esta todo la info que he guardao en el nodo
-        console.log(data.node.original);
+        //en data.node.original esta todo la info que he guardado en el nodo
+        console.log(data.node.original.projectID);
+        
+        console.log(data.node.parents)
         let nm=document.getElementById(data.node.parent);
         
         let nombreModelo=(nm.childNodes[1].childNodes[1].data).trim();
@@ -153,7 +155,7 @@ function prepareUserHubsTree() {
             EliminarSeleccionado(e.target.offsetParent.id)
           }
         })
-        if (isModel(data.node.original.tipo,data.node.original.versionID)){
+        if (isModel(data.node.original.tipo,data.node.original.versionID,data.node.original.projectID)){
         //boton.addEventListener("click",function(){EliminarSeleccionado(linea.innerText)}, false)
         listaModelos.appendChild(linea);//los modelos a federar
         console.log("No es un xlsx, se evalua como modelo...")
@@ -210,10 +212,11 @@ function CheckUser() {
   });
 }
 
-function isModel(nd,id){
+function isModel(nd,id,pid){
           console.log(nd);
           console.log(id);
-          let project_id='b.99a67f48-dc5a-4524-bf43-4ea4a696ba69'
+          
+          let project_id=pid
           if(nd==="xlsx"){
            //ESTO NO FUNCIONA!!!!
             console.log("es un excel");

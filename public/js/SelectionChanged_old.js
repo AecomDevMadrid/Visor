@@ -1,6 +1,6 @@
 
 
-//extension que se vincula al cambio en la seleccion de elementos
+//extension que se vincula al cambio en la seleccion de elementos (no activada)
 class SelectionChanged extends Autodesk.Viewing.Extension {
     constructor(viewer,options){
     super(viewer,options);

@@ -1,4 +1,4 @@
-//extension para consultar las coordenadas reales de los elementos, los nombres estan heredados de otra extension...
+//extension para consultar las coordenadas reales de los elementos, los nombres estan heredados de otra extension de un ejemplo...
 class DrawBoundsToolExtension extends Autodesk.Viewing.Extension {
     constructor(viewer, options) {
         super(viewer, options);
@@ -294,7 +294,7 @@ function MyAwesomePanel(viewer, container, id, title, options) {
     // and may also append child elements...
   
   };
-  
+  //se encarga de sincronizar el boton y el panel, si cierras el panel, desactivas boton, etc...
   function  vigilante(show) {
     if( show ) {
       // Logic for opening the panel
@@ -303,8 +303,8 @@ function MyAwesomePanel(viewer, container, id, title, options) {
     } else {
       // Logic for closing the panel
       console.log("Hide");
-      //No se como acceder al viewer desde aqui...NOP_VIEWER no se si es muy ortodoxo...
-      NOP_VIEWER.toolController.deactivateTool(DrawBoundsToolName);
+      //
+      viewer.toolController.deactivateTool(DrawBoundsToolName);
       
       let grupo=NOP_VIEWER.toolbar.getControl('draw-tool-group');
       grupo.getControl("draw-bounds-tool-button").setState(Autodesk.Viewing.UI.Button.State.INACTIVE);

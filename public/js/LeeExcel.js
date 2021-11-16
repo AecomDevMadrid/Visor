@@ -1,4 +1,4 @@
-
+//tratamiento de los excels, de dos maneras, arrastrando desde el escritorio (fue lo primero que hice) o doble click en el arbol de archivos
 let registroActivos=[];//array con todos los activos en forma de objeto
 let miActivo=new activo("ACT","#","Activos ferroviarios","","propiedades","#");
 registroActivos.push(miActivo);
@@ -293,7 +293,7 @@ function createJSTree(jsondata) {
 			  }
 			})
 			.bind("select_node.jstree", function (event, data) {
-				//esto es para que se focalice el nodo seleccionado, haciendo scroll si hace falta
+				//esto es para que se focalice el nodo seleccionado, haciendo scroll si hace falta en el arbol
 			//console.log(data.node.id)
 			if (!viewer.toolController.isToolActivated("Sel-tool")){
 				$("#selToActivos_Button").click()

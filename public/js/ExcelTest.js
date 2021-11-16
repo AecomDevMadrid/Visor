@@ -1,4 +1,5 @@
 //Drag and drop
+//pruebas, sin uso
 console.log(XLSX.version);
 console.log("ExcelTest");
 function drop_handler(e) {

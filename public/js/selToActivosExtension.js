@@ -1,4 +1,4 @@
-//extension para consultar las coordenadas reales de los elementos, los nombres estan heredados de otra extension...
+//extension para consultar los activos, modelo-->arbol de activos y seleccion en modelo del conjunto de lementos que conforman el activo
 class selToActivosExtension extends Autodesk.Viewing.Extension {
     constructor(viewer, options) {
         super(viewer, options);
