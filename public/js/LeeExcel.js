@@ -145,9 +145,9 @@ function procesaExcel(libro){
 		}) 
 
 console.log(registroActivos);
+console.log("fin del procesado")
 
-
-		createJSTree(registroActivos);
+createJSTree(registroActivos);
 	
 	
 
@@ -232,6 +232,7 @@ function obtenerIdPadre(id){
 	}
 }
 function createJSTree(jsondata) { 
+	console.log("inicio del arbol")
 			console.log(jsondata); 
 			//no actualizo el arbol, lo destruyo y lo recreo entero
 			$('#activos').jstree("destroy").empty()

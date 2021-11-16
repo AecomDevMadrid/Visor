@@ -240,7 +240,7 @@ arbolFUNUnico.push(object)
     arbolLimpio.add(objectJSON)
 })
 console.log(arbolFUNUnico)
-createJSTree(arbolFUNUnico)
+createJSTreeFUN(arbolFUNUnico)
 
 
 }
@@ -249,7 +249,7 @@ function updateFunciones(){
 }
 let arbolFUN=[]
 
-function createJSTree(jsondata) { 
+function createJSTreeFUN(jsondata) { 
     //console.log(jsondata); 
     //no actualizo el arbol, lo destruyo y lo recreo entero
     $('#infoFUN').jstree("destroy").empty()
