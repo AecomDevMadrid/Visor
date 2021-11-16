@@ -21,9 +21,10 @@ const express = require('express');
 const cookieSession = require('cookie-session');
 
 const { OAuth } = require('./routes/common/oauth');
-const PORT = process.env.PORT || 5000;
+
 const config = require('./config');
-if (config.credentials.client_id == null || config.credentials.client_secret == null) {
+const PORT = process.env.PORT || 5000
+if (config.credentials.CLIENT_ID == null || config.credentials.CLIENT_SECRET == null) {
     console.error('Missing FORGE_CLIENT_ID or FORGE_CLIENT_SECRET env. variables.');
     return;
 }
@@ -44,6 +45,8 @@ app.use((err, req, res, next) => {
     res.status(err.statusCode).json(err);
 });
 app.listen(PORT, () => { console.log(`Server listening on port ${PORT}`); });
+
+
 app.get('/api/Oauth', async (req, res, next) => {
     const { code } = req.query;
     const oauth = new OAuth(req.session);

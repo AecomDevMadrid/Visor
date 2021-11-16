@@ -1,4 +1,4 @@
-Pruebas con el visor
+Pruebas cone el visor
 autenticacion
 federacion
 extensiones
