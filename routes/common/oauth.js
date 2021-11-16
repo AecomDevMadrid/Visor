@@ -26,8 +26,8 @@ class OAuth {
     }
 
     getClient(scopes = config.scopes.internal) {
-        const { client_id, client_secret, callback_url } = config.credentials;
-        return new AuthClientThreeLegged(client_id, client_secret, callback_url, scopes);
+        const { CLIENT_ID, CLIENT_SECRET, callback_url } = config.credentials;
+        return new AuthClientThreeLegged(CLIENT_ID, CLIENT_SECRET, callback_url, scopes);
     }
 
     isAuthorized() {

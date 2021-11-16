@@ -15,7 +15,8 @@
 // DOES NOT WARRANT THAT THE OPERATION OF THE PROGRAM WILL BE
 // UNINTERRUPTED OR ERROR FREE.
 /////////////////////////////////////////////////////////////////////
-
+const axios=require('axios');
+var XLSX = require('xlsx')
 const express = require('express');
 const { HubsApi, ProjectsApi, FoldersApi, ItemsApi } = require('forge-apis');
 
@@ -34,6 +35,7 @@ router.get('/datamanagement', async (req, res) => {
     // Get the access token
     const oauth = new OAuth(req.session);
     const internalToken = await oauth.getInternalToken();
+   // console.log(internalToken);
     if (href === '#') {
         // If href is '#', it's the root tree node
         getHubs(oauth.getClient(), internalToken, res);
@@ -133,12 +135,13 @@ async function getFolderContents(projectId, folderId, oauthClient, credentials, 
     const treeNodes = contents.body.data.map((item) => {
         var name = (item.attributes.name == null ? item.attributes.displayName : item.attributes.name);
         if (name !== '') { // BIM 360 Items with no displayName also don't have storage, so not file to transfer
-            console.log(item.attributes);
+            //console.log(item.attributes.extension);
             return createTreeNode(
                 item.links.self.href,
                 name,
                 item.type,
                 true
+                
             );
         } else {
             return null;
@@ -150,22 +153,115 @@ async function getFolderContents(projectId, folderId, oauthClient, credentials, 
 async function getVersions(projectId, itemId, oauthClient, credentials, res) {
     const items = new ItemsApi();
     const versions = await items.getItemVersions(projectId, itemId, {}, oauthClient, credentials);
+    //console.log(versions.body.data);
     res.json(versions.body.data.map((version) => {
+        //console.log(version.attributes.fileType)
         const dateFormated = new Date(version.attributes.lastModifiedTime).toLocaleString();
         const versionst = version.id.match(/^(.*)\?version=(\d+)$/)[2];
         const viewerUrn = (version.relationships != null && version.relationships.derivatives != null ? version.relationships.derivatives.data.id : null);
+        const versionID=version.id;
+       
+        //console.log(version);
         return createTreeNode(
             viewerUrn,
-            decodeURI('v' + versionst + ': ' + dateFormated + ' by ' + version.attributes.lastModifiedUserName),
+            decodeURI('v' + versionst + ': ' + dateFormated + ' by ' + version.attributes.lastModifiedUserName+ " "+version.attributes.fileType),
             (viewerUrn != null ? 'versions' : 'unsupported'),
-            false
-        );
+            false,
+            version.attributes.fileType,
+            versionID
+            
+                   );
     }));
 }
 
-// Format data for tree
-function createTreeNode(_id, _text, _type, _children) {
-    return { id: _id, text: _text, type: _type, children: _children };
+// Format data for tree//el tipo es cosa mia, es la extension del archivo
+function createTreeNode(_id, _text, _type, _children,_tipo,_versionID) {
+/*      console.log("***************");
+    console.log(_id);
+    console.log(_text);
+    console.log(_type);
+    console.log(_tipo); 
+    console.log(_versionID);  */
+    return { id: _id, text: _text, type: _type, children: _children,tipo:_tipo,versionID: _versionID, custom:"custom" };
 }
+
+router.get('/getExcel', async (req, res) => {
+    // The id querystring parameter contains what was selected on the UI tree, make sure it's valid
+    console.log('route getExcel');
+    
+//console.log(req.query);
+// caracteres NO seguros en la URL, hay que transformarlo escape URL (:.?=) encodeURIComponent
+    const project_id = encodeURIComponent(req.query.project_id);
+    //const version_id= decodeURIComponent(req.query.version_id);
+    const version_id= encodeURIComponent(req.query.version_id);
+//console.log(project_id);
+//console.log(version_id);
+    if (version_id === '') {
+        res.status(500).end();
+        return;
+    }
+    
+        // Get the access token
+        const oauth = new OAuth(req.session);
+        const internalToken = await oauth.getInternalToken();
+        //************ */
+//para acceder al excel-->obtengo la version y luego res.data.data.relationships.storage...
+        const libro1=await axios({//libro 1 contendra el workbook para poder devolverlo
+            method: 'get',
+            url:`https://developer.api.autodesk.com/data/v1/projects/b.99a67f48-dc5a-4524-bf43-4ea4a696ba69/versions/${version_id}`,
+            headers: {
+                'Authorization': `Bearer ${internalToken.access_token}`,
+                      },
+                    })
+        .catch(function(err) {
+          /* error in getting data */
+          console.log(err)
+        })
+        
+        
+        .then(function(res) { 
+          //esto es el excel a tratar, donde esta almacenado el archivo de la version
+         // console.log(res.data.data.relationships.storage.meta.link.href)
+          const excelStorage=res.data.data.relationships.storage.meta.link.href;
+          return excelStorage;
+        })
+        .then(async function (excelStorage){
+            //console.log(excelStorage)
+                      //tengo que hacer otra peticion para obtener el excel con el link de arriba (excelStorage) y esperando un responsetype arraybuffer
+                     const libro=await axios({
+                        method: 'get',
+                        url:`${excelStorage}`,
+                        responseType:'arraybuffer',
+                        headers: {
+                            'Authorization': `Bearer ${internalToken.access_token}`,
+                                  },
+                                })
+                                .then( function(res){
+                                    var data = new Uint8Array(res.data);
+                                    var workbook = XLSX.read(data, {type:"array"});
+                                    return workbook
+                                })
+                                .then(function(workbook) {
+                                    /* DO SOMETHING WITH workbook HERE */
+                                    //console.log(workbook);
+                                    return workbook
+                                  })
+
+
+
+        return libro;//paso libro al siguiente then(workbook)
+        })
+        .then(function (workbook){
+            //console.log("workbook")
+            //console.log(workbook)
+
+            return workbook
+        })
+
+        res.send(libro1)//devuelvo libro 1
+});
+
+//******************************************************************* */
+
 
 module.exports = router;
