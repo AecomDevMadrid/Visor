@@ -168,21 +168,22 @@ async function getVersions(projectId, itemId, oauthClient, credentials, res) {
             (viewerUrn != null ? 'versions' : 'unsupported'),
             false,
             version.attributes.fileType,
-            versionID
+            versionID,
+            projectId
             
                    );
     }));
 }
 
-// Format data for tree//el tipo es cosa mia, es la extension del archivo
-function createTreeNode(_id, _text, _type, _children,_tipo,_versionID) {
+// Format data for tree//el tipo es cosa mia, es la extension del archivo y el project id tambien lo incluyo, pero solo lo relleno con las versiones!!
+function createTreeNode(_id, _text, _type, _children,_tipo,_versionID,_project_id) {
 /*      console.log("***************");
     console.log(_id);
     console.log(_text);
     console.log(_type);
     console.log(_tipo); 
     console.log(_versionID);  */
-    return { id: _id, text: _text, type: _type, children: _children,tipo:_tipo,versionID: _versionID, custom:"custom" };
+    return { id: _id, text: _text, type: _type, children: _children,tipo:_tipo,versionID: _versionID, custom:"custom",projectID:_project_id };
 }
 
 router.get('/getExcel', async (req, res) => {
@@ -192,6 +193,7 @@ router.get('/getExcel', async (req, res) => {
 //console.log(req.query);
 // caracteres NO seguros en la URL, hay que transformarlo escape URL (:.?=) encodeURIComponent
     const project_id = encodeURIComponent(req.query.project_id);
+    console.log(project_id)
     //const version_id= decodeURIComponent(req.query.version_id);
     const version_id= encodeURIComponent(req.query.version_id);
 //console.log(project_id);
@@ -208,7 +210,7 @@ router.get('/getExcel', async (req, res) => {
 //para acceder al excel-->obtengo la version y luego res.data.data.relationships.storage...
         const libro1=await axios({//libro 1 contendra el workbook para poder devolverlo
             method: 'get',
-            url:`https://developer.api.autodesk.com/data/v1/projects/b.99a67f48-dc5a-4524-bf43-4ea4a696ba69/versions/${version_id}`,
+            url:`https://developer.api.autodesk.com/data/v1/projects/${project_id}/versions/${version_id}`,
             headers: {
                 'Authorization': `Bearer ${internalToken.access_token}`,
                       },
