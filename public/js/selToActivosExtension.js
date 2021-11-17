@@ -175,10 +175,11 @@ class SelTool extends Autodesk.Viewing.ToolInterface {
                                        // console.log(result.snapNode);//id del elemento?
                     //console.log(result.modelId);//id del modelo?
                     idToSel=[result.snapNode]
+                   // console.log(idToSel)
                     mode=viewer.getAllModels()[result.modelId-1]
-                   
+                   //console.log(mode)
                     viewer.select(idToSel,mode,Autodesk.Viewing.SelectionType.MIXED)
-
+        
                     mode.getPropertySet(idToSel,valorObtenido,(x)=>{console.log(x)},opt)
                     
                     //this._update(datos)
@@ -286,6 +287,8 @@ class SelTool extends Autodesk.Viewing.ToolInterface {
 }
 
 function valorObtenido(ppset){
+    console.log("valor obtenido")
+    console.log(ppset)
     //let val=ppset.getValue2PropertiesMap(key)
     datos=[]
     ppset.forEach((name, properties) => {

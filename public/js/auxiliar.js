@@ -3,16 +3,18 @@ async function getActivos(paramName,paramValue){
     let modelos=viewer.getAllModels()
     let numModelos=modelos.length;
     console.log(modelos.length)   
-    const dbIds_2=[];   
-    
+    const dbIds_2=[];  
+    let numSel=0; 
+    console.log("inicio selActivos")
+    console.log(dbIds_2)
     modelos.forEach(async function(mod){
    // console.log(mod.id)     
     let index= mod.id-1   
     
 
     console.log('buscando '+ paramName + ' en modelo ' + mod.getData().loadOptions.bubbleNode.getRootNode().children[0].name());    
-      let res = await viewer.impl.modelQueue().getModels()[index].getPropertyDb().executeUserFunction(`function userFunction(pdb) {
-        
+     // let res = await viewer.impl.modelQueue().getModels()[index].getPropertyDb().executeUserFunction(`function userFunction(pdb) {
+      let res = await viewer.getAllModels()[index].getPropertyDb().executeUserFunction(`function userFunction(pdb) {
         var attrIdAct = -1;
         var dbIds=[];
         //console.log(pdb)
@@ -75,27 +77,65 @@ async function getActivos(paramName,paramValue){
       ids:res
     }
 dbIds_2.push(sel)
+numSel=numSel+sel.ids.length
+//Bbox de todos los modelos para cuando no se encuentra nada que haga zoon
+allModelsBox(sel.model.getBoundingBox())
+//Isolate para cada modelo, no podemos hacerlo para modelo agregado
+if(sel.ids.length>0){
+                    viewer.isolate(sel.ids,sel.model)
+                    //viewer.select(sel.ids,sel.model)
+                    viewer.setSelectionColor(new THREE.Color(0xFF0000), Autodesk.Viewing.SelectionType.MIXED)
+                    }else{
+//si no hay id no aisla nada y el modelo se ve opaco, no quiero eso
+  //viewer.hideModel(sel.model.id)
+  
+                            let instanceTree = viewer.model.getData().instanceTree
+                          let rootId = instanceTree.getRootId()
+                          //console.log(rootId)
+                          viewer.hide(rootId,sel.model) // hidding root node will hide whole model ..
+                          //Algunos objetos, no quedan transparentes, por el material?? el terreno por ejemplo
+                          }
 
 
 //console.log(dbIds_2) 
 if (index==numModelos-1){
 //final del bucle, ya he comprobado todos los modelos
 //console.log(index)
-viewer.impl.selector.setAggregateSelection( dbIds_2 );
+//
+viewer.setAggregateSelection( dbIds_2 );
 
 //a veces tarda en encontrar las cosas y de cara al usuario parece que no hace nada...
 //el fit to view en modelos agregados, es posible?
-var box =viewer.utilities.getBoundingBox();
-viewer.navigation.fitBounds( false, box ,true )
-viewer.setSelectionColor(new THREE.Color(0xFF0000), Autodesk.Viewing.SelectionType.MIXED)
-//console.log(box)
-
-if (dbIds_2.length===0){
-viewer.clearSelection()
+if(numSel>0){
+  console.log("dbid2 tiene algo")
+  var box =viewer.utilities.getBoundingBox(true);
+  viewer.navigation.fitBounds( false, box ,true )
+  viewer.setSelectionColor(new THREE.Color(0xFF0000), Autodesk.Viewing.SelectionType.MIXED)
+}else{
+  console.log("nothing to select")
+  viewer.clearSelection() 
+  //no he conseguido que haga un zoom extension aqui, esto trabaja sobre el modelo activo y parece que no hay ninguno...
+  //var box =viewer.utilities.getBoundingBox();
+  
+  viewer.navigation.fitBounds( false, allBbox ,true )
 }
+numSel=0
+
 }
     })
 
+}
+//BBox de todos los modelos
+let allBbox=new THREE.Box3
+function allModelsBox(bbox){
+  //console.log(bbox)
+if (allBbox.max.x<bbox.max.x){allBbox.max.x=bbox.max.x}
+if (allBbox.max.y<bbox.max.y){allBbox.max.y=bbox.max.y}
+if (allBbox.max.z<bbox.max.z){allBbox.max.z=bbox.max.z}
+if (allBbox.min.x>bbox.min.x){allBbox.min.x=bbox.min.x}
+if (allBbox.min.y>bbox.min.y){allBbox.min.y=bbox.min.y}
+if (allBbox.min.z>bbox.min.z){allBbox.min.z=bbox.min.z}
+//console.log(allBbox)
 }
 //obtiene el nodo por ID del arbol de activos
 function nodeSel(nodeId){
